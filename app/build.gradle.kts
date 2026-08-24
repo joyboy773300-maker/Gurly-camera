@@ -12,8 +12,8 @@ android {
         applicationId = "com.girlycam.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 5
+        versionName = "1.5"
     }
 
     compileOptions {
@@ -57,6 +57,8 @@ dependencies {
     implementation("androidx.camera:camera-view:1.4.1")
 
     implementation("io.coil-kt:coil-compose:2.7.0")
+    implementation("com.google.mlkit:face-detection:16.1.7")
+    implementation("com.google.android.gms:play-services-tasks:18.2.0")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
 }

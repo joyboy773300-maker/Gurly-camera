@@ -971,15 +971,6 @@ class MainActivity : ComponentActivity() {
             else -> Unit
         }
 
-        if (sticker != Sticker.NONE) {
-            val stickerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                color = AndroidColor.parseColor("#D85C7E")
-                textSize = 72f
-                textAlign = Paint.Align.RIGHT
-            }
-            canvas.drawText(sticker.glyph, width - 42f, 92f, stickerPaint)
-        }
-
         val name = "GirlyCam_Edit_" +
                 SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
 
@@ -1000,6 +991,15 @@ class MainActivity : ComponentActivity() {
         contentResolver.openOutputStream(outUri)?.use { stream ->
             output.compress(Bitmap.CompressFormat.JPEG, 94, stream)
         }
+        if (sticker != Sticker.NONE) {
+            val stickerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = AndroidColor.parseColor("#D85C7E")
+                textSize = 72f
+                textAlign = Paint.Align.RIGHT
+            }
+            canvas.drawText(sticker.glyph, width - 42f, 92f, stickerPaint)
+        }
+
         source.recycle()
         if (processed !== source) processed.recycle()
         output.recycle()

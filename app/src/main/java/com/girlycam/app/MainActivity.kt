@@ -281,3 +281,180 @@ class MainActivity : ComponentActivity() {
         )
     }
 }
+                cameraProvider.bindToLifecycle(
+                    this@MainActivity,
+                    cameraSelector,
+                    preview,
+                    capture
+                )
+            }
+        }
+
+        MaterialTheme {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = Color(0xFFFFF9FC)
+            ) {
+                if (hasCameraPermission) {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        AndroidView(
+                            factory = { PreviewView(it) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 92.dp, bottom = 126.dp)
+                                .clip(RoundedCornerShape(28.dp)),
+                            update = { previewView = it }
+                        )
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = 20.dp)
+                                .navigationBarsPadding(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Spacer(modifier = Modifier.height(24.dp))
+
+                            Text(
+                                text = "GirlyCam",
+                                style = MaterialTheme.typography.headlineSmall,
+                                color = Color(0xFF5B4852)
+                            )
+
+                            Spacer(modifier = Modifier.weight(1f))
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 22.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                IconButton(
+                                    onClick = { },
+                                    modifier = Modifier
+                                        .size(52.dp)
+                                        .background(
+                                            Color.White.copy(alpha = 0.92f),
+                                            CircleShape
+                                        )
+                                ) {
+                                    Icon(
+                                        Icons.Default.PhotoLibrary,
+                                        contentDescription = "Gallery",
+                                        tint = Color(0xFF8E6878)
+                                    )
+                                }
+
+                                IconButton(
+                                    onClick = {
+                                        takePhoto { uri ->
+                                            lastPhotoUri = uri
+                                        }
+                                    },
+                                    modifier = Modifier
+                                        .size(82.dp)
+                                        .background(
+                                            Color(0xFFFFC7DA),
+                                            CircleShape
+                                        )
+                                ) {
+                                    Icon(
+                                        Icons.Default.CameraAlt,
+                                        contentDescription = "Take photo",
+                                        modifier = Modifier.size(38.dp),
+                                        tint = Color.White
+                                    )
+                                }
+
+                                IconButton(
+                                    onClick = {
+                                        cameraSelector =
+                                            if (cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA) {
+                                                CameraSelector.DEFAULT_FRONT_CAMERA
+                                            } else {
+                                                CameraSelector.DEFAULT_BACK_CAMERA
+                                            }
+                                    },
+                                    modifier = Modifier
+                                        .size(52.dp)
+                                        .background(
+                                            Color.White.copy(alpha = 0.92f),
+                                            CircleShape
+                                        )
+                                ) {
+                                    Icon(
+                                        Icons.Default.FlipCameraAndroid,
+                                        contentDescription = "Flip camera",
+                                        tint = Color(0xFF8E6878)
+                                    )
+                                }
+                            }
+
+                            if (lastPhotoUri != null) {
+                                Text(
+                                    text = "Saved to your gallery ♡",
+                                    color = Color(0xFF8E6878),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    modifier = Modifier.padding(bottom = 8.dp)
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "Camera permission needed",
+                            color = Color(0xFF5B4852)
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private fun takePhoto(onSaved: (String) -> Unit) {
+        val capture = imageCapture ?: return
+
+        val resolver = contentResolver
+        val name = "GirlyCam_" +
+                SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+
+        val values = ContentValues().apply {
+            put(MediaStore.Images.Media.DISPLAY_NAME, "$name.jpg")
+            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+            put(
+                MediaStore.Images.Media.RELATIVE_PATH,
+                "Pictures/GirlyCam"
+            )
+        }
+
+        val output = ImageCapture.OutputFileOptions.Builder(
+            resolver,
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            values
+        ).build()
+
+        capture.takePicture(
+            output,
+            ContextCompat.getMainExecutor(this),
+            object : ImageCapture.OnImageSavedCallback {
+                override fun onImageSaved(
+                    outputFileResults: ImageCapture.OutputFileResults
+                ) {
+                    outputFileResults.savedUri?.let {
+                        onSaved(it.toString())
+                    }
+                }
+
+                override fun onError(exception: ImageCaptureException) {
+                    exception.printStackTrace()
+                }
+            }
+        )
+    }
+}

@@ -1,3 +1,4 @@
+import androidx.compose.foundation.layout.fillMaxHeight
 package com.girlycam.app
 
 import android.Manifest
